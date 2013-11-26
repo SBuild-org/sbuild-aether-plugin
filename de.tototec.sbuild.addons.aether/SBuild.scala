@@ -8,12 +8,12 @@ import de.tototec.sbuild.TargetRefs._
 class SBuild(implicit _project: Project) {
 
   val namespace = "de.tototec.sbuild.addons.aether"
-  val version = "0.0.1"
+  val version = "0.0.9000"
 
   val sbuildVersion = "0.6.0.9004"
   val scalaVersion = "2.10.3"
-  val aetherJar = s"target/${namespace}-${sbuildVersion}.jar"
-  val sourcesZip = s"target/${namespace}-${sbuildVersion}-sources.jar"
+  val aetherJar = s"target/${namespace}-${version}.jar"
+  val sourcesZip = s"target/${namespace}-${version}-sources.jar"
 
   val scalaCompiler = s"mvn:org.scala-lang:scala-compiler:$scalaVersion" ~
     s"mvn:org.scala-lang:scala-library:$scalaVersion" ~

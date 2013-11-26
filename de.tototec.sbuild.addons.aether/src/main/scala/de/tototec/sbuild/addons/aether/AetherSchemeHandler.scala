@@ -1,9 +1,8 @@
 package de.tototec.sbuild.addons.aether
 
 import java.io.File
-import java.net.URLClassLoader
+import scala.Array.canBuildFrom
 import de.tototec.sbuild.Logger
-import de.tototec.sbuild.MavenSupport.MavenGav
 import de.tototec.sbuild.Project
 import de.tototec.sbuild.SchemeHandler.SchemeContext
 import de.tototec.sbuild.SchemeResolver
@@ -11,6 +10,7 @@ import de.tototec.sbuild.TargetContext
 import de.tototec.sbuild.TargetRefs
 import de.tototec.sbuild.TargetRefs.fromString
 import de.tototec.sbuild.addons.aether.impl.AetherSchemeHandlerWorkerImpl
+import de.tototec.sbuild.ProjectConfigurationException
 
 object AetherSchemeHandler {
   private[this] val log = Logger[AetherSchemeHandler.type]
@@ -58,63 +58,52 @@ object AetherSchemeHandler {
       "mvn:org.slf4j:slf4j-simple:1.7.5"
   }
 
-  //  def resolveAndCreate(localRepoDir: File = new File(System.getProperty("user.home") + "/.m2/repository"),
-  //                       remoteRepos: Seq[AetherSchemeHandler.Repository] = Seq(AetherSchemeHandler.CentralRepo))(implicit project: Project): AetherSchemeHandler = {
-  //
-  //    val implJar = ClasspathUtil.extractResourceToFile(classOf[AetherSchemeHandler].getClassLoader, InternalConstants.aetherImplJarName, allElements = false, deleteOnVmExit = true, project)
-  //    log.debug("Using aether impl jar: " + implJar)
-  //
-  //    val classpath = implJar ++ ResolveFiles(fullAetherCp)
-  //
-  //    new AetherSchemeHandler(classpath, localRepoDir, remoteRepos)
-  //
-  //  }
-
 }
 
 class AetherSchemeHandler(
   aetherClasspath: Seq[File] = Seq(),
   localRepoDir: File = new File(System.getProperty("user.home") + "/.m2/repository"),
-  remoteRepos: Seq[Repository] = Seq(Repository.Central))(implicit project: Project)
+  remoteRepos: Seq[Repository] = Seq(Repository.Central),
+  scopeDeps: Map[String, Seq[String]] = Map())(implicit project: Project)
     extends SchemeResolver {
 
   private[this] val log = Logger[AetherSchemeHandler]
 
   private[this] val worker: AetherSchemeHandlerWorker = new AetherSchemeHandlerWorkerImpl(localRepoDir, remoteRepos)
 
-  //  {
-  //
-  //    val thisClass = classOf[AetherSchemeHandler]
-  //
-  //    val aetherClassLoader = aetherClasspath match {
-  //      case null | Seq() => thisClass.getClassLoader
-  //      case cp =>
-  //        val cl = new URLClassLoader(cp.map { f => f.toURI().toURL() }.toArray, thisClass.getClassLoader)
-  //        log.debug("Using aether classpath: " + cl.getURLs().mkString(", "))
-  //        cl
-  //    }
-  //
-  //    try {
-  //      val workerImplClass = aetherClassLoader.loadClass(thisClass.getPackage().getName() + "." + "impl.AetherSchemeHandlerWorkerImpl")
-  //      val workerImplClassCtr = workerImplClass.getConstructor(classOf[File], classOf[Seq[AetherSchemeHandler.Repository]])
-  //      val worker = workerImplClassCtr.newInstance(localRepoDir, remoteRepos).asInstanceOf[AetherSchemeHandlerWorker]
-  //      worker
-  //    } catch {
-  //      case e: ClassNotFoundException =>
-  //        // TODO: Lift exception into domain
-  //        throw e
-  //    }
-  //  }
-
   def localPath(schemeCtx: SchemeContext): String = s"phony:${schemeCtx.scheme}:${schemeCtx.path}"
 
   def resolve(schemeCtx: SchemeContext, targetContext: TargetContext) {
     try {
+      val rawRequestedDeps = schemeCtx.path.split(",")
 
-      val requestedDeps = schemeCtx.path.split(",").map(p => MavenGav(p.trim))
-      log.debug("About to resolve the following requested dependencies: " + requestedDeps.mkString(", "))
+      var cycleGuard: List[String] = Nil
+      def resolveScopes(rawRequestedDeps: Seq[String]): Seq[String] = {
+        val cycleGuardBefore = cycleGuard
+        val res = rawRequestedDeps.flatMap { name =>
+          // replace scope Alias by their content
+          scopeDeps.get(name.trim) match {
+            case Some(replacement) if cycleGuard.contains(name) =>
+              val ex = new ProjectConfigurationException("Cyclic dependencies references detected in dependency: " + schemeCtx.fullName)
+              ex.buildScript = Option(project.projectFile)
+              throw ex
+            case Some(replacement) =>
+              cycleGuard ::= name.trim
+              replacement
+            case None => Seq(name)
+          }
+        }
+        if (cycleGuardBefore != cycleGuard) resolveScopes(res)
+        else res
+      }
 
-      val files = worker.resolve(requestedDeps)
+      val requestedDeps = resolveScopes(rawRequestedDeps)
+
+      val requestedMavenGavs = requestedDeps.map(p => MavenGav(p.trim))
+
+      log.debug("About to resolve the following requested dependencies: " + requestedMavenGavs.mkString(", "))
+
+      val files = worker.resolve(requestedMavenGavs)
       files.foreach { f => targetContext.attachFile(f) }
 
       //    println("Resolved files: " + files)
