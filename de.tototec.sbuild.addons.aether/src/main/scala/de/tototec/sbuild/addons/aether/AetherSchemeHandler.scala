@@ -2,29 +2,20 @@ package de.tototec.sbuild.addons.aether
 
 import java.io.File
 import java.net.URLClassLoader
+import de.tototec.sbuild.Logger
 import de.tototec.sbuild.MavenSupport.MavenGav
 import de.tototec.sbuild.Project
+import de.tototec.sbuild.SchemeHandler.SchemeContext
 import de.tototec.sbuild.SchemeResolver
 import de.tototec.sbuild.TargetContext
 import de.tototec.sbuild.TargetRefs
 import de.tototec.sbuild.TargetRefs.fromString
-import de.tototec.sbuild.ResolveFiles
-import de.tototec.sbuild.SchemeHandler.SchemeContext
-import de.tototec.sbuild.Logger
+import de.tototec.sbuild.addons.aether.impl.AetherSchemeHandlerWorkerImpl
 
 object AetherSchemeHandler {
   private[this] val log = Logger[AetherSchemeHandler.type]
 
   val version = InternalConstants.version
-
-  case class Repository(name: String, layout: String, url: String)
-  object Repository {
-    implicit def fromFullName(fullName: String): Repository = fullName.split("::") match {
-      case Array(name, layout, url) => Repository(name, layout, url)
-      case _ => throw new IllegalArgumentException("Unsupported repository definition (required: <name>::<layout>::<url>): " + fullName)
-    }
-  }
-  val CentralRepo = Repository("central", "default", "http://repo1.maven.org/maven2")
 
   def fullAetherCp(implicit project: Project): TargetRefs = {
     val aetherVersion = "0.9.0.M2"
@@ -67,51 +58,53 @@ object AetherSchemeHandler {
       "mvn:org.slf4j:slf4j-simple:1.7.5"
   }
 
-  def resolveAndCreate(localRepoDir: File = new File(System.getProperty("user.home") + "/.m2/repository"),
-                       remoteRepos: Seq[AetherSchemeHandler.Repository] = Seq(AetherSchemeHandler.CentralRepo))(implicit project: Project): AetherSchemeHandler = {
-
-    val implJar = ClasspathUtil.extractResourceToFile(classOf[AetherSchemeHandler].getClassLoader, InternalConstants.aetherImplJarName, allElements = false, deleteOnVmExit = true, project)
-    log.debug("Using aether impl jar: " + implJar)
-
-    val classpath = implJar ++ ResolveFiles(fullAetherCp)
-
-    new AetherSchemeHandler(classpath, localRepoDir, remoteRepos)
-
-  }
+  //  def resolveAndCreate(localRepoDir: File = new File(System.getProperty("user.home") + "/.m2/repository"),
+  //                       remoteRepos: Seq[AetherSchemeHandler.Repository] = Seq(AetherSchemeHandler.CentralRepo))(implicit project: Project): AetherSchemeHandler = {
+  //
+  //    val implJar = ClasspathUtil.extractResourceToFile(classOf[AetherSchemeHandler].getClassLoader, InternalConstants.aetherImplJarName, allElements = false, deleteOnVmExit = true, project)
+  //    log.debug("Using aether impl jar: " + implJar)
+  //
+  //    val classpath = implJar ++ ResolveFiles(fullAetherCp)
+  //
+  //    new AetherSchemeHandler(classpath, localRepoDir, remoteRepos)
+  //
+  //  }
 
 }
 
 class AetherSchemeHandler(
   aetherClasspath: Seq[File] = Seq(),
   localRepoDir: File = new File(System.getProperty("user.home") + "/.m2/repository"),
-  remoteRepos: Seq[AetherSchemeHandler.Repository] = Seq(AetherSchemeHandler.CentralRepo))(implicit project: Project)
+  remoteRepos: Seq[Repository] = Seq(Repository.Central))(implicit project: Project)
     extends SchemeResolver {
 
   private[this] val log = Logger[AetherSchemeHandler]
 
-  private[this] val worker: AetherSchemeHandlerWorker = {
+  private[this] val worker: AetherSchemeHandlerWorker = new AetherSchemeHandlerWorkerImpl(localRepoDir, remoteRepos)
 
-    val thisClass = classOf[AetherSchemeHandler]
-
-    val aetherClassLoader = aetherClasspath match {
-      case null | Seq() => thisClass.getClassLoader
-      case cp =>
-        val cl = new URLClassLoader(cp.map { f => f.toURI().toURL() }.toArray, thisClass.getClassLoader)
-        log.debug("Using aether classpath: " + cl.getURLs().mkString(", "))
-        cl
-    }
-
-    try {
-      val workerImplClass = aetherClassLoader.loadClass(thisClass.getPackage().getName() + "." + "impl.AetherSchemeHandlerWorkerImpl")
-      val workerImplClassCtr = workerImplClass.getConstructor(classOf[File], classOf[Seq[AetherSchemeHandler.Repository]])
-      val worker = workerImplClassCtr.newInstance(localRepoDir, remoteRepos).asInstanceOf[AetherSchemeHandlerWorker]
-      worker
-    } catch {
-      case e: ClassNotFoundException =>
-        // TODO: Lift exception into domain
-        throw e
-    }
-  }
+  //  {
+  //
+  //    val thisClass = classOf[AetherSchemeHandler]
+  //
+  //    val aetherClassLoader = aetherClasspath match {
+  //      case null | Seq() => thisClass.getClassLoader
+  //      case cp =>
+  //        val cl = new URLClassLoader(cp.map { f => f.toURI().toURL() }.toArray, thisClass.getClassLoader)
+  //        log.debug("Using aether classpath: " + cl.getURLs().mkString(", "))
+  //        cl
+  //    }
+  //
+  //    try {
+  //      val workerImplClass = aetherClassLoader.loadClass(thisClass.getPackage().getName() + "." + "impl.AetherSchemeHandlerWorkerImpl")
+  //      val workerImplClassCtr = workerImplClass.getConstructor(classOf[File], classOf[Seq[AetherSchemeHandler.Repository]])
+  //      val worker = workerImplClassCtr.newInstance(localRepoDir, remoteRepos).asInstanceOf[AetherSchemeHandlerWorker]
+  //      worker
+  //    } catch {
+  //      case e: ClassNotFoundException =>
+  //        // TODO: Lift exception into domain
+  //        throw e
+  //    }
+  //  }
 
   def localPath(schemeCtx: SchemeContext): String = s"phony:${schemeCtx.scheme}:${schemeCtx.path}"
 

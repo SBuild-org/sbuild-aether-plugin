@@ -21,8 +21,8 @@ import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.sonatype.maven.wagon.AhcWagon
 
 import de.tototec.sbuild.MavenSupport.MavenGav
-import de.tototec.sbuild.addons.aether.AetherSchemeHandler
 import de.tototec.sbuild.addons.aether.AetherSchemeHandlerWorker
+import de.tototec.sbuild.addons.aether.Repository
 
 object AetherSchemeHandlerWorkerImpl {
 
@@ -39,7 +39,7 @@ object AetherSchemeHandlerWorkerImpl {
 
 }
 
-class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[AetherSchemeHandler.Repository]) extends AetherSchemeHandlerWorker {
+class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Repository]) extends AetherSchemeHandlerWorker {
   import AetherSchemeHandlerWorkerImpl._
 
   private[this] def newRepositorySystem() = {
