@@ -1,0 +1,19 @@
+= SBuild Aether Plugin
+
+This SBuild plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
+
+== Installation
+
+There is currently no release of this plugin. You need to build it by yourself.
+
+== Building from Source
+
+You need a recent version of SBuild.
+
+----
+git clone https://github.com/lefou/sbuild-aether.git
+cd sbuild-aether
+sbuild all
+----
+
+You will find the build jar in the directory `de.tototec.sbuild.addons.aether/target`.
