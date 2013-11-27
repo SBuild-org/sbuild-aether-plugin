@@ -2,6 +2,8 @@
 
 This SBuild plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
 
+WARNING: The Aether Plugin is in early development state. Its API may change radically.
+
 == Installation
 
 There is currently no release of this plugin. You need to build it by yourself.
@@ -12,8 +14,69 @@ You need a recent version of SBuild.
 
 ----
 git clone https://github.com/lefou/sbuild-aether.git
-cd sbuild-aether
+cd sbuild-aether/de.tototec.sbuild.addons.aether
 sbuild all
 ----
 
-You will find the build jar in the directory `de.tototec.sbuild.addons.aether/target`.
+You will find the build jar in the directory `target`.
+
+== Examples
+
+=== Minimal example, using Aether to transitively resolve a dependency
+
+[source,scala]
+----
+import de.tototec.sbuild._
+
+@version("0.6.0.9004")
+// This adds the Aether plugin to the project
+@classpath("de.tototec.sbuild.addons.aether-0.0.9000.jar")
+class Test(implicit _project: Project) {
+
+  // This enables the aether plugin with it's default config
+  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether")
+
+  // A dependency for demonstration
+  val dep = "aether:org.testng:testng:6.8"
+
+  Target("phony:test-resolve-simple") dependsOn dep exec {
+    println("Files: " + dep.files.mkString("\n"))
+  }
+}
+----
+
+=== Using the container equivalent of Maven
+
+[source,scala]
+----
+import de.tototec.sbuild._
+
+@version("0.6.0.9004")
+// This adds the Aether plugin to the project
+@classpath("de.tototec.sbuild.addons.aether-0.0.9000.jar")
+class Test(implicit _project: Project) {
+
+  // This enables and configures the Aether plugin
+  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether").config(
+    scopeDeps = Map(
+      // Our compile dependencies 
+      "compile" -> Seq(
+        "org.slf4j:slf4j-api:1.7.5",
+        "org.testng:testng:6.8"
+      ),
+      // Our test dependencies, which also contains the compile deps too
+      "test" -> Seq(
+        "compile",
+        "ch.qos.logback:logback-classic:1.0.11"
+      )
+    )
+  )
+
+  Target("phony:test-resolve-compile") dependsOn "aether:compile" exec { ctx: TargetContext =>
+    println("Files: " + ctx.dependsOn.files.mkString("\n"))
+  }
+
+  Target("phony:test-resolve-test") dependsOn "aether:test" exec { ctx: TargetContext =>
+    println("Files: " + ctx.dependsOn.files.mkString("\n"))
+  }
+}
