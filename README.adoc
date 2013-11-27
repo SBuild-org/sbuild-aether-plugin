@@ -18,7 +18,7 @@ cd sbuild-aether/de.tototec.sbuild.addons.aether
 sbuild all
 ----
 
-You will find the build jar in the directory `target`.
+You will find the built jar in the directory `target`.
 
 == Examples
 
@@ -80,3 +80,5 @@ class Test(implicit _project: Project) {
     println("Files: " + ctx.dependsOn.files.mkString("\n"))
   }
 }
+----
+
