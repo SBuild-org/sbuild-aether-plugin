@@ -18,7 +18,7 @@ cd sbuild-aether/de.tototec.sbuild.addons.aether
 sbuild all
 ----
 
-You will find the built jar in the directory `target`.
+You will find the built jar in the directory `de.tototec.sbuild.addons.aether/target`.
 
 == Examples
 
