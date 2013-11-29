@@ -4,8 +4,8 @@ import de.tototec.sbuild._
 @classpath("target/de.tototec.sbuild.addons.aether-0.0.9000.jar")
 class Test(implicit _project: Project) {
 
-  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether").config(
-    scopeDeps = Map(
+  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether") configure ( c =>
+    c.scopeDeps = Map(
       "compile" -> Seq(
         "org.slf4j:slf4j-api:1.7.5",
         "org.testng:testng:6.8"
@@ -37,6 +37,8 @@ class Test(implicit _project: Project) {
 
   Target("phony:test-resolve-cyclic") dependsOn "aether:cyclic-1" exec { ctx: TargetContext =>
     printFiles(ctx)
-  }
+  } help "This target should fail because it has cyclic dependencies."
+
+  Target("phony:all") dependsOn "test-resolve-simple" ~~ "test-resolve-compile" ~~ "test-resolve-test" ~~ "test-resolve-cyclic"
 
 }
