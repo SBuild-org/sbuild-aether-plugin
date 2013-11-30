@@ -124,8 +124,8 @@ class SBuild(implicit _project: Project) {
       fileSet = AntFileSet(file = Path("LICENSE.txt")),
       manifestEntries = Map(
         "SBuild-ExportPackage" -> "de.tototec.sbuild.addons.aether",
-        "SBuild-Plugin" -> """de.tototec.sbuild.addons.aether.Aether=de.tototec.sbuild.addons.aether.AetherPlugin,
-                              de.tototec.sbuild.addons.aether.AetherContainer=de.tototec.sbuild.addons.aether.AetherContainerPlugin""",
+        "SBuild-Plugin" ->
+          s"""de.tototec.sbuild.addons.aether.Aether=de.tototec.sbuild.addons.aether.AetherPlugin;version="${version}"""",
         "SBuild-Classpath" -> Seq(
           s"mvn:org.eclipse.aether:aether-api:${aetherVersion}",
           s"mvn:org.eclipse.aether:aether-spi:${aetherVersion}",
