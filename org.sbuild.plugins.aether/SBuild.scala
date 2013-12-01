@@ -123,7 +123,7 @@ class SBuild(implicit _project: Project) {
       baseDir = Path("target/classes"),
       fileSet = AntFileSet(file = Path("LICENSE.txt")),
       manifestEntries = Map(
-        "SBuild-ExportPackage" -> "de.tototec.sbuild.addons.aether",
+        "SBuild-ExportPackage" -> namespace,
         "SBuild-Plugin" ->
           s"""${namespace}.Aether=${namespace}.AetherPlugin;version="${version}"""",
         "SBuild-Classpath" -> Seq(
