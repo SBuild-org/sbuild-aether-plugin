@@ -14,11 +14,11 @@ You need a recent version of SBuild.
 
 ----
 git clone https://github.com/lefou/sbuild-aether.git
-cd sbuild-aether/de.tototec.sbuild.addons.aether
+cd sbuild-aether/org.sbuild.plugins.aether
 sbuild all
 ----
 
-You will find the built jar in the directory `de.tototec.sbuild.addons.aether/target`.
+You will find the built jar in the directory `org.sbuild.plugins.aether/target`.
 
 == Examples
 
@@ -27,14 +27,15 @@ You will find the built jar in the directory `de.tototec.sbuild.addons.aether/ta
 [source,scala]
 ----
 import de.tototec.sbuild._
+import org.sbuild.plugins.aether._
 
 @version("0.6.0.9004")
 // This adds the Aether plugin to the project
-@classpath("de.tototec.sbuild.addons.aether-0.0.9000.jar")
+@classpath("org.sbuild.plugins.aether-0.0.9000.jar")
 class Test(implicit _project: Project) {
 
   // This enables the aether plugin with it's default config
-  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether")
+  Plugin[Aether]("aether")
 
   // A dependency for demonstration
   val dep = "aether:org.testng:testng:6.8"
@@ -50,14 +51,15 @@ class Test(implicit _project: Project) {
 [source,scala]
 ----
 import de.tototec.sbuild._
+import org.sbuild.plugins.aether._
 
 @version("0.6.0.9004")
 // This adds the Aether plugin to the project
-@classpath("de.tototec.sbuild.addons.aether-0.0.9000.jar")
+@classpath("org.sbuild.plugins.aether-0.0.9000.jar")
 class Test(implicit _project: Project) {
 
   // This enables and configures the Aether plugin
-  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether").config(
+  Plugin[Aether]("aether").config(
     scopeDeps = Map(
       // Our compile dependencies 
       "compile" -> Seq(
