@@ -1,4 +1,4 @@
-package de.tototec.sbuild.addons.aether.impl
+package org.sbuild.plugins.aether.impl
 
 import java.io.File
 
@@ -20,9 +20,9 @@ import org.eclipse.aether.spi.connector.RepositoryConnectorFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.sonatype.maven.wagon.AhcWagon
 
-import de.tototec.sbuild.addons.aether.AetherSchemeHandlerWorker
-import de.tototec.sbuild.addons.aether.MavenGav
-import de.tototec.sbuild.addons.aether.Repository
+import org.sbuild.plugins.aether.AetherSchemeHandlerWorker
+import org.sbuild.plugins.aether.MavenGav
+import org.sbuild.plugins.aether.Repository
 
 object AetherSchemeHandlerWorkerImpl {
 

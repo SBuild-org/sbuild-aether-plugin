@@ -1,4 +1,4 @@
-package de.tototec.sbuild.addons.aether
+package org.sbuild.plugins.aether
 
 object MavenGav {
   def apply(artifact: String): MavenGav = {

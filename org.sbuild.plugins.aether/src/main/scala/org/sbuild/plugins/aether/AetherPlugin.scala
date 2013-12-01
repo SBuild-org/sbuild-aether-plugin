@@ -1,4 +1,4 @@
-package de.tototec.sbuild.addons.aether
+package org.sbuild.plugins.aether
 
 import de.tototec.sbuild.Plugin
 import de.tototec.sbuild.Project

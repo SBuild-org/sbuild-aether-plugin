@@ -1,10 +1,11 @@
 import de.tototec.sbuild._
+import org.sbuild.plugins.aether._
 
 @version("0.6.0.9004")
-@classpath("target/de.tototec.sbuild.addons.aether-0.0.9000.jar")
+@classpath("target/org.sbuild.plugins.aether-0.0.9000.jar")
 class Test(implicit _project: Project) {
 
-  Plugin[de.tototec.sbuild.addons.aether.Aether]("aether") configure ( c =>
+  Plugin[Aether]("aether") configure ( c =>
     c.scopeDeps = Map(
       "compile" -> Seq(
         "org.slf4j:slf4j-api:1.7.5",

@@ -7,12 +7,12 @@ import de.tototec.sbuild.TargetRefs._
 @classpath("mvn:org.apache.ant:ant:1.8.4")
 class SBuild(implicit _project: Project) {
 
-  val namespace = "de.tototec.sbuild.addons.aether"
+  val namespace = "org.sbuild.plugins.aether"
   val version = "0.0.9000"
 
   val sbuildVersion = "0.6.0.9004"
   val scalaVersion = "2.10.3"
-  val aetherJar = s"target/${namespace}-${version}.jar"
+  val jar = s"target/${namespace}-${version}.jar"
   val sourcesZip = s"target/${namespace}-${version}-sources.jar"
 
   val scalaCompiler = s"mvn:org.scala-lang:scala-compiler:$scalaVersion" ~
@@ -64,7 +64,7 @@ class SBuild(implicit _project: Project) {
 
   ExportDependencies("eclipse.classpath", compileCp)
 
-  Target("phony:all") dependsOn sourcesZip ~ aetherJar // aetherImplJar ~ aetherJar
+  Target("phony:all") dependsOn sourcesZip ~ jar
 
   Target("phony:clean").evictCache exec {
     AntDelete(dir = Path("target"))
@@ -78,7 +78,7 @@ class SBuild(implicit _project: Project) {
       |/** Generated file. */
       |private object InternalConstants {
       |  /** The SBuild version this class was built with. */
-      |  def version = "${sbuildVersion}"
+      |  def version = "${version}"
       |}
       |""".stripMargin
     )
@@ -117,7 +117,7 @@ class SBuild(implicit _project: Project) {
     )
   }
 
-  Target(aetherJar) dependsOn "compile" ~ "LICENSE.txt" exec { ctx: TargetContext =>
+  Target(jar) dependsOn "compile" ~ "LICENSE.txt" exec { ctx: TargetContext =>
     AntJar(
       destFile = ctx.targetFile.get,
       baseDir = Path("target/classes"),
@@ -125,7 +125,7 @@ class SBuild(implicit _project: Project) {
       manifestEntries = Map(
         "SBuild-ExportPackage" -> "de.tototec.sbuild.addons.aether",
         "SBuild-Plugin" ->
-          s"""de.tototec.sbuild.addons.aether.Aether=de.tototec.sbuild.addons.aether.AetherPlugin;version="${version}"""",
+          s"""${namespace}.Aether=${namespace}.AetherPlugin;version="${version}"""",
         "SBuild-Classpath" -> Seq(
           s"mvn:org.eclipse.aether:aether-api:${aetherVersion}",
           s"mvn:org.eclipse.aether:aether-spi:${aetherVersion}",

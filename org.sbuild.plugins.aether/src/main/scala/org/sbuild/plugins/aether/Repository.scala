@@ -1,4 +1,4 @@
-package de.tototec.sbuild.addons.aether
+package org.sbuild.plugins.aether
 
 object Repository {
   implicit def fromFullName(fullName: String): Repository = fullName.split("::") match {

@@ -1,4 +1,4 @@
-package de.tototec.sbuild.addons.aether
+package org.sbuild.plugins.aether
 
 import java.io.File
 import scala.Array.canBuildFrom
@@ -9,7 +9,7 @@ import de.tototec.sbuild.SchemeResolver
 import de.tototec.sbuild.TargetContext
 import de.tototec.sbuild.TargetRefs
 import de.tototec.sbuild.TargetRefs.fromString
-import de.tototec.sbuild.addons.aether.impl.AetherSchemeHandlerWorkerImpl
+import org.sbuild.plugins.aether.impl.AetherSchemeHandlerWorkerImpl
 import de.tototec.sbuild.ProjectConfigurationException
 
 object AetherSchemeHandler {
