@@ -8,7 +8,7 @@ import de.tototec.sbuild.TargetRefs._
 class SBuild(implicit _project: Project) {
 
   val namespace = "org.sbuild.plugins.aether"
-  val version = "0.0.9000"
+  val version = "0.0.9100"
 
   val sbuildVersion = "0.7.0"
   val scalaVersion = "2.10.3"
