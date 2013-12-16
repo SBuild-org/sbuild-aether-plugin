@@ -13,7 +13,7 @@ There is currently no release of this plugin. You need to build it by yourself.
 You need a recent version of SBuild.
 
 ----
-git clone https://github.com/lefou/sbuild-aether.git
+git clone https://github.com/SBuild-org/sbuild-aether.git
 cd sbuild-aether/org.sbuild.plugins.aether
 sbuild all
 ----
