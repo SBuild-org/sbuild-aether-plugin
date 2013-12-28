@@ -1,8 +1,6 @@
 package org.sbuild.plugins.aether
 
-import de.tototec.sbuild.Plugin
-import de.tototec.sbuild.Project
-import de.tototec.sbuild.SchemeHandler
+import de.tototec.sbuild._
 
 /**
  * Central configuration of the SBuild Aether Plugin.
@@ -15,24 +13,29 @@ import de.tototec.sbuild.SchemeHandler
  *
  * For further documentation refer to the respective methods/fields.
  *
- *
+ * @param schemeName The name of the registered scheme handler.
+ * @param remoteRepos Remote repositories Aether will refer to, to resolve the requested dependencies.
+ * @param scopeDeps Dependencies collected by scope, whereas the scope is an alias for the dependencies.
  */
-class Aether(val name: String) {
-  /** The name of the registered scheme handler. */
-  var schemeName: String = if (name == "") "aether" else name
-  /**
-   * Remote repositories Aether will refer to, to resolve the requested dependencies.
-   */
-  var remoteRepos: Seq[Repository] = Seq()
-  /**
-   * Dependencies collected by scope, whereas the scope is an alias for the dependencies.
-   */
-  var scopeDeps: Map[String, Seq[String]] = Map()
+case class Aether(schemeName: String,
+                  remoteRepos: Seq[Repository] = Seq(Repository.Central),
+                  scopeDeps: Map[String, Seq[Dependency]] = Map(),
+                  scopeExcludes: Map[String, Seq[Exclude]] = Map()) {
+
+  def addDeps(scope: String)(deps: Dependency*): Aether =
+    copy(scopeDeps = scopeDeps + (scope -> (scopeDeps.withDefault(scope => Seq())(scope) ++ deps)))
+
+  def addExcludes(scope: String)(excludes: Exclude*): Aether =
+    copy(scopeExcludes = scopeExcludes + (scope -> (scopeExcludes.withDefault(scope => Seq())(scope) ++ excludes)))
 
 }
 
 class AetherPlugin(implicit project: Project) extends Plugin[Aether] {
-  override def create(name: String): Aether = new Aether(name)
+
+  override def create(name: String): Aether = Aether(
+    schemeName = if (name == "") "aether" else name
+  )
+
   override def applyToProject(instances: Seq[(String, Aether)]): Unit = instances foreach {
     case (name, pluginContext) =>
       val handler = new AetherSchemeHandler(

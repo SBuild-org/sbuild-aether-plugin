@@ -1,27 +1,23 @@
 import de.tototec.sbuild._
-import org.sbuild.plugins.aether._
 
-@version("0.6.0.9004")
-@classpath("target/org.sbuild.plugins.aether-0.0.9000.jar")
+@version("0.7.1")
+@classpath("target/org.sbuild.plugins.aether-0.0.9100.jar")
 class Test(implicit _project: Project) {
 
-  Plugin[Aether]("aether") configure ( c =>
-    c.scopeDeps = Map(
-      "compile" -> Seq(
-        "org.slf4j:slf4j-api:1.7.5",
-        "org.testng:testng:6.8"
-      ),
-      "test" -> Seq(
-        "compile",
-        "ch.qos.logback:logback-classic:1.0.11"
-      ),
-      "cyclic-1" -> Seq("compile", "test", "cyclic-2"),
-      "cyclic-2" -> Seq("compile", "cyclic-1")
-    )
+  import org.sbuild.plugins.aether._
+
+  Plugin[Aether]("aether") configure (aether => aether.
+    addDeps("compile")("org.slf4j:slf4j-api:1.7.5", "org.testng:testng:6.8").
+    addDeps("test")("compile", "ch.qos.logback:logback-classic:1.0.11").
+    addDeps("cyclic-1")("compile", "test", "cyclic-2").
+    addDeps("cyclic-2")("compile", "cyclic-1").
+    addDeps("testng")("org.testng:testng:6.8").
+    addDeps("testng-without-jcommander")("org.testng:testng:6.8").
+    addExcludes("testng-without-jcommander")("com.beust:jcommander")
   )
 
   def printFiles(ctx: TargetContext) {
-    println("Files:" + ctx.dependsOn.files.zipWithIndex.map{case (n, i) => "\n  " + (1 + i) + ". " + n }.mkString)
+    println("Files:" + ctx.dependsOn.files.zipWithIndex.map { case (n, i) => "\n  " + (1 + i) + ". " + n }.mkString)
   }
 
   Target("phony:test-resolve-simple") dependsOn "aether:org.testng:testng:6.8" exec { ctx: TargetContext =>
@@ -33,6 +29,16 @@ class Test(implicit _project: Project) {
   }
 
   Target("phony:test-resolve-test") dependsOn "aether:test" exec { ctx: TargetContext =>
+    printFiles(ctx)
+  }
+
+  Target("phony:test-resolve-testng") dependsOn "aether:testng" exec { ctx: TargetContext =>
+    printFiles(ctx)
+  }
+
+  Target("phony:test-resolve-testng-without-jcommander") dependsOn "aether:testng-without-jcommander" exec { ctx: TargetContext =>
+    println("Deps: " + Plugin[Aether]("aether").get.scopeDeps)
+    println("Excludes: " + Plugin[Aether]("aether").get.scopeExcludes)
     printFiles(ctx)
   }
 

@@ -1,9 +1,7 @@
 package org.sbuild.plugins.aether.impl
 
 import java.io.File
-
-import scala.collection.JavaConverters.asScalaBufferConverter
-
+import scala.collection.JavaConverters._
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
 import org.apache.maven.wagon.Wagon
 import org.eclipse.aether.RepositorySystem
@@ -19,10 +17,12 @@ import org.eclipse.aether.resolution.DependencyRequest
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator
 import org.sonatype.maven.wagon.AhcWagon
-
 import org.sbuild.plugins.aether.AetherSchemeHandlerWorker
-import org.sbuild.plugins.aether.MavenGav
 import org.sbuild.plugins.aether.Repository
+import org.sbuild.plugins.aether.ArtifactDependency
+import org.sbuild.plugins.aether.Exclude
+import org.eclipse.aether.graph.Exclusion
+import org.sbuild.plugins.aether.Exclude
 
 object AetherSchemeHandlerWorkerImpl {
 
@@ -62,14 +62,21 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
   lazy val repoSystem = newRepositorySystem()
   lazy val session = newSession(repoSystem)
 
-  override def resolve(requestedArtifacts: Seq[MavenGav]): Seq[File] = {
+  override def resolve(requestedArtifacts: Seq[ArtifactDependency]): Seq[File] = {
 
+    def exclusion(exclude: Seq[Exclude]) = exclude.map {
+      case Exclude(groupId, artifactId, classifier, extension) =>
+        new Exclusion(groupId, artifactId, classifier.orNull, extension.orNull)
+    }.asJavaCollection
+
+    println("About to resolve deps: " + requestedArtifacts)
+    
     // create Maven dependencies from it
     val deps = requestedArtifacts.map {
-      case MavenGav(g, a, v, None) =>
-        new Dependency(new DefaultArtifact(g, a, "jar", v), "compile")
-      case MavenGav(g, a, v, Some(c)) =>
-        new Dependency(new DefaultArtifact(g, a, c, "jar", v), "compile")
+      case ArtifactDependency(g, a, v, None, exclude) =>
+        new Dependency(new DefaultArtifact(g, a, "jar", v), "compile", false, exclusion(exclude))
+      case ArtifactDependency(g, a, v, Some(c), exclude) =>
+        new Dependency(new DefaultArtifact(g, a, c, "jar", v), "compile", false, exclusion(exclude))
     }
 
     val centralRepo = new RemoteRepository.Builder("central", "default", "http://repo1.maven.org/maven2").build()
@@ -77,7 +84,7 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
     val collectRequest = new CollectRequest()
     deps.foreach { d => collectRequest.addDependency(d) }
     collectRequest.addRepository(centralRepo)
-    
+
     val node = repoSystem.collectDependencies(session, collectRequest).getRoot()
 
     val dependencyRequest = new DependencyRequest()
