@@ -70,7 +70,7 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
     }.asJavaCollection
 
     println("About to resolve deps: " + requestedArtifacts)
-    
+
     // create Maven dependencies from it
     val deps = requestedArtifacts.map {
       case ArtifactDependency(g, a, v, None, exclude) =>
@@ -79,11 +79,11 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
         new Dependency(new DefaultArtifact(g, a, c, "jar", v), "compile", false, exclusion(exclude))
     }
 
-    val centralRepo = new RemoteRepository.Builder("central", "default", "http://repo1.maven.org/maven2").build()
-
     val collectRequest = new CollectRequest()
     deps.foreach { d => collectRequest.addDependency(d) }
-    collectRequest.addRepository(centralRepo)
+    remoteRepos.map { repo =>
+      collectRequest.addRepository(new RemoteRepository.Builder(repo.name, repo.layout, repo.url).build())
+    }
 
     val node = repoSystem.collectDependencies(session, collectRequest).getRoot()
 
@@ -98,7 +98,7 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
     val files = nlg.getNodes().asScala.toSeq.map { node =>
       val dep = node.getDependency()
       val artifact = if (dep != null) dep.getArtifact() else null
-      val file = if (artifact != null) artifact.getFile else null
+      val file = if (artifact != null) artifact.getFile() else null
       if (file != null) file.getAbsoluteFile() else null
     }.filter(_ != null)
 
