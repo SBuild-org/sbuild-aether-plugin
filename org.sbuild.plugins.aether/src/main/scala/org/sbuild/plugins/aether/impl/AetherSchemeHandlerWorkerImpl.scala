@@ -42,7 +42,7 @@ object AetherSchemeHandlerWorkerImpl {
 class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Repository]) extends AetherSchemeHandlerWorker {
   import AetherSchemeHandlerWorkerImpl._
 
-  private[this] def newRepositorySystem() = {
+  private[impl] def newRepositorySystem() = {
     val locator = MavenRepositorySystemUtils.newServiceLocator()
     locator.setServices(classOf[WagonProvider], new ManualWagonProvider())
     locator.setService(classOf[RepositoryConnectorFactory], classOf[FileRepositoryConnectorFactory])
@@ -52,7 +52,7 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
     system
   }
 
-  private[this] def newSession(system: RepositorySystem) = {
+  private[impl] def newSession(system: RepositorySystem) = {
     val session = MavenRepositorySystemUtils.newSession()
     val localRepo = new LocalRepository(localRepoDir)
     session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo))

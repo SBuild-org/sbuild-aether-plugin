@@ -6,7 +6,7 @@ class Test(implicit _project: Project) {
 
   import org.sbuild.plugins.aether._
 
-  Plugin[Aether]("aether") configure (aether => aether.
+  val aether = Plugin[Aether]("aether").configure(_.
     addDeps("compile")("org.slf4j:slf4j-api:1.7.5", "org.testng:testng:6.8").
     addDeps("test")("compile", "ch.qos.logback:logback-classic:1.0.11").
     addDeps("cyclic-1")("compile", "test", "cyclic-2").
@@ -14,7 +14,7 @@ class Test(implicit _project: Project) {
     addDeps("testng")("org.testng:testng:6.8").
     addDeps("testng-without-jcommander")("org.testng:testng:6.8").
     addExcludes("testng-without-jcommander")("com.beust:jcommander")
-  )
+  ).get
 
   def printFiles(ctx: TargetContext) {
     println("Files:" + ctx.dependsOn.files.zipWithIndex.map { case (n, i) => "\n  " + (1 + i) + ". " + n }.mkString)
@@ -37,8 +37,8 @@ class Test(implicit _project: Project) {
   }
 
   Target("phony:test-resolve-testng-without-jcommander") dependsOn "aether:testng-without-jcommander" exec { ctx: TargetContext =>
-    println("Deps: " + Plugin[Aether]("aether").get.scopeDeps)
-    println("Excludes: " + Plugin[Aether]("aether").get.scopeExcludes)
+    println("Deps: " + aether.scopeDeps)
+    println("Excludes: " + aether.scopeExcludes)
     printFiles(ctx)
   }
 

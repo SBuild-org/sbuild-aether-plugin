@@ -9,12 +9,13 @@ class AetherPlugin(implicit project: Project) extends Plugin[Aether] {
   )
 
   override def applyToProject(instances: Seq[(String, Aether)]): Unit = instances foreach {
-    case (name, pluginContext) =>
+    case (name, aether) =>
       val handler = new AetherSchemeHandler(
-        remoteRepos = pluginContext.remoteRepos,
-        scopeDeps = pluginContext.scopeDeps
+        remoteRepos = aether.remoteRepos,
+        scopeDeps = aether.scopeDeps,
+        scopeExcludes = aether.scopeExcludes
       )
-      SchemeHandler(pluginContext.schemeName, handler)
+      SchemeHandler(aether.schemeName, handler)
   }
 }
 
