@@ -1,12 +1,15 @@
 = SBuild Aether Plugin
+Tobias Roeser
+:sbuildversion: 0.7.1
+:pluginversion: 0.0.9000
 
 This SBuild plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
 
 WARNING: The Aether Plugin is in early development state. Its API may change radically.
 
-== Installation
+== Download
 
-There is currently no release of this plugin. You need to build it by yourself.
+The SBuild Aether Plugin can be downloaded from http://repo1.maven.org/maven2/org/sbuild/org.sbuild.plugins.aether[Maven Central].
 
 == Building from Source
 
@@ -24,15 +27,15 @@ You will find the built jar in the directory `org.sbuild.plugins.aether/target`.
 
 === Minimal example, using Aether to transitively resolve a dependency
 
-[source,scala]
+[source,scala,subs="attributes"]
 ----
 import de.tototec.sbuild._
-import org.sbuild.plugins.aether._
 
-@version("0.6.0.9004")
-// This adds the Aether plugin to the project
-@classpath("org.sbuild.plugins.aether-0.0.9000.jar")
+@version("{sbuildversion}")
+@classpath("mvn:org.sbuild:org.sbuild.plugins.aether:{pluginversion}")
 class Test(implicit _project: Project) {
+
+  import org.sbuild.plugins.aether._
 
   // This enables the aether plugin with it's default config
   Plugin[Aether]("aether")
@@ -48,18 +51,19 @@ class Test(implicit _project: Project) {
 
 === Using the container equivalent of Maven
 
-[source,scala]
+[source,scala,subs="attributes"]
 ----
 import de.tototec.sbuild._
-import org.sbuild.plugins.aether._
 
-@version("0.6.0.9004")
+@version("{sbuildversion}")
 // This adds the Aether plugin to the project
 @classpath("org.sbuild.plugins.aether-0.0.9000.jar")
 class Test(implicit _project: Project) {
 
+  import org.sbuild.plugins.aether._
+
   // This enables and configures the Aether plugin
-  Plugin[Aether]("aether").config(
+  Plugin[Aether]("aether") configure (_.copy(
     scopeDeps = Map(
       // Our compile dependencies 
       "compile" -> Seq(
@@ -84,3 +88,8 @@ class Test(implicit _project: Project) {
 }
 ----
 
+== Changelog
+
+=== SBuild Aether Plugi 0.1.0 - _not released yet_
+
+* Initial release.
