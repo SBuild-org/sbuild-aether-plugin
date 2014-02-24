@@ -5,15 +5,15 @@ import de.tototec.sbuild.ant.tasks._
 @version("0.7.1")
 @classpath(
   "mvn:org.apache.ant:ant:1.8.4",
-//  "mvn:org.sbuild:org.sbuild.plugins.sbuildplugin:0.2.1"
-  "scan:../../sbuild-plugin/org.sbuild.plugins.sbuildplugin/target/;regex=org\\.sbuild\\.plugins\\.sbuildplugin-[0-9.]*\\.jar"
+  "mvn:org.sbuild:org.sbuild.plugins.sbuildplugin:0.3.0"
 )
 class SBuild(implicit _project: Project) {
 
   val namespace = "org.sbuild.plugins.aether"
   val version = "0.0.9100"
 
-  val aetherVersion = "0.9.0.M2"
+  val aetherVersion = "0.9.0.M4"
+  val aetherConnectorVersion = "0.9.0.M2"
   val wagonVersion = "2.4"
 
   val aetherCp = Seq(
@@ -21,9 +21,9 @@ class SBuild(implicit _project: Project) {
     s"mvn:org.eclipse.aether:aether-spi:${aetherVersion}",
     s"mvn:org.eclipse.aether:aether-util:${aetherVersion}",
     s"mvn:org.eclipse.aether:aether-impl:${aetherVersion}",
-    s"mvn:org.eclipse.aether:aether-connector-file:${aetherVersion}",
-    s"mvn:org.eclipse.aether:aether-connector-asynchttpclient:${aetherVersion}",
-    s"mvn:org.eclipse.aether:aether-connector-wagon:${aetherVersion}",
+    s"mvn:org.eclipse.aether:aether-connector-file:${aetherConnectorVersion}",
+    s"mvn:org.eclipse.aether:aether-connector-asynchttpclient:${aetherConnectorVersion}",
+    s"mvn:org.eclipse.aether:aether-connector-wagon:${aetherConnectorVersion}",
     "mvn:io.tesla.maven:maven-aether-provider:3.1.2",
     s"mvn:org.apache.maven.wagon:wagon-provider-api:${wagonVersion}",
     s"mvn:org.apache.maven.wagon:wagon-http:${wagonVersion}",
@@ -56,7 +56,7 @@ class SBuild(implicit _project: Project) {
 
   Plugin[SBuildPlugin] configure {
     _.copy(
-      sbuildVersion = "0.7.1",
+      sbuildVersion = SBuildVersion.v0_7_1,
       pluginClass = s"$namespace.Aether",
       pluginVersion = version,
       deps = aetherCp
