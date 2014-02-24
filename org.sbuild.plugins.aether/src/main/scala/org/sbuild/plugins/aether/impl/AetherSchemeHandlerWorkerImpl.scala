@@ -66,7 +66,7 @@ class AetherSchemeHandlerWorkerImpl(localRepoDir: File, remoteRepos: Seq[Reposit
 
     def exclusion(exclude: Seq[Exclude]) = exclude.map {
       case Exclude(groupId, artifactId, classifier, extension) =>
-        new Exclusion(groupId, artifactId, classifier.orNull, extension.orNull)
+        new Exclusion(groupId, artifactId, classifier.getOrElse("*"), extension.getOrElse("*"))
     }.asJavaCollection
 
     println("About to resolve deps: " + requestedArtifacts)
