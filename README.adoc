@@ -97,7 +97,7 @@ You can also exclude dependencies from the transitive dependency graph. Besides 
 https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html#Dependency_Exclusions[known from Maven], you can also
 exclude dependencies more generally with the `Aether.scopeExcludes` property. That way, you can easily exclude dependencies you have identified to be conflicting, without the need to add the exclude property to each dependency.
 
-[source,scala,subs="attributes"]
+[source,scala,subs="attributes,verbatim"]
 ----
 import de.tototec.sbuild._
 
