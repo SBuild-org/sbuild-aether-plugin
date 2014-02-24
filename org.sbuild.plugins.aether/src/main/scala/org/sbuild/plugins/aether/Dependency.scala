@@ -1,5 +1,13 @@
 package org.sbuild.plugins.aether
 
+sealed trait Dependency
+case class ScopeRef(ref: String) extends Dependency
+case class ArtifactDependency(groupId: String,
+                              artifactId: String,
+                              version: String,
+                              classifier: Option[String] = None,
+                              excludes: Seq[Exclude] = Seq()) extends Dependency
+
 object Dependency {
   def apply(artifact: String): Dependency = {
 
@@ -24,14 +32,6 @@ object Dependency {
 
   }
 }
-
-sealed trait Dependency
-case class ScopeRef(ref: String) extends Dependency
-case class ArtifactDependency(groupId: String,
-                              artifactId: String,
-                              version: String,
-                              classifier: Option[String] = None,
-                              excludes: Seq[Exclude] = Seq()) extends Dependency
 
 object Exclude {
   def apply(exclude: String): Exclude = {
