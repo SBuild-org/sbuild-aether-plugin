@@ -2,10 +2,14 @@
 Tobias Roeser
 :sbuildversion: 0.7.1
 :pluginversion: 0.0.9000
+:toc:
+:toc-placement: preamble
+:toclevels: 1
 
 This SBuild plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
 
-WARNING: The Aether Plugin is in early development state. Its API may change radically.
+[WARNING]
+The Aether Plugin is in early development state. Its API may change radically.
 
 == Download
 
@@ -27,27 +31,29 @@ You will find the built jar in the directory `org.sbuild.plugins.aether/target`.
 
 === Minimal example, using Aether to transitively resolve a dependency
 
-[source,scala,subs="attributes"]
+[source,scala,subs="attributes,verbatim"]
 ----
 import de.tototec.sbuild._
 
 @version("{sbuildversion}")
-@classpath("mvn:org.sbuild:org.sbuild.plugins.aether:{pluginversion}")
+@classpath("mvn:org.sbuild:org.sbuild.plugins.aether:{pluginversion}") //<1>
 class Test(implicit _project: Project) {
 
   import org.sbuild.plugins.aether._
 
-  // This enables the aether plugin with it's default config
-  Plugin[Aether]("aether")
+  Plugin[Aether]("aether") //<2>
 
-  // A dependency for demonstration
-  val dep = "aether:org.testng:testng:6.8"
+  val dep = "aether:org.testng:testng:6.8" //<3>
 
   Target("phony:test-resolve-simple") dependsOn dep exec {
     println("Files: " + dep.files.mkString("\n"))
   }
 }
 ----
+
+<1> Add the Aether Plugin to the project.
+<2> Enable the Aether Plugin by creating a `"aether"` named instance.
+<3> Use the scheme with the same name as the plugin instance.
 
 === Using the container equivalent of Maven
 
@@ -57,7 +63,7 @@ import de.tototec.sbuild._
 
 @version("{sbuildversion}")
 // This adds the Aether plugin to the project
-@classpath("org.sbuild.plugins.aether-0.0.9000.jar")
+@classpath("org.sbuild.plugins.aether-{pluginversion}.jar")
 class Test(implicit _project: Project) {
 
   import org.sbuild.plugins.aether._
@@ -87,6 +93,45 @@ class Test(implicit _project: Project) {
   }
 }
 ----
+
+=== Excluding Dependencies
+
+You can also exclude dependencies from the transitive dependency graph. Besides the normal exclusions for selective dependencies
+https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html#Dependency_Exclusions[known from Maven], you can also
+exclude dependencies more generally with the `Aether.scopeExcludes` property. That way, you can easily exclude dependencies you have identified to be conflicting, without the need to add the exclude property to each dependency.
+
+[source,scala,subs="attributes"]
+----
+import de.tototec.sbuild._
+
+@version("{sbuildversion}")
+@classpath("org.sbuild.plugins.aether-{pluginversion}.jar")
+class Test(implicit _project: Project) {
+
+  import org.sbuild.plugins.aether._
+
+  Plugin[Aether]("aether") configure (_.copy(
+    scopeDeps = Map(
+      "compile" -> Seq(
+        "org.slf4j:slf4j-api:1.7.5",
+        Dependency("org.testng", "testng", "6.8", excludes = Seq("com.beust:jcommander) //<1>
+      ),
+      // Our test dependencies, which also contains the compile deps too
+      "test" -> Seq(
+        "compile",
+        "ch.qos.logback:logback-classic:1.0.11"
+      )
+    ),
+    scopeExcludes = Map(
+      "test" -> "com.beust:jcommander" //<2>
+    )
+  )
+
+}
+----
+
+<1> Add the `"org.testng:testng:6.8"` dependency to the `"compile"` scope, but exclude `"com.beust:jcommander"` from the transitive dependendies.
+<2> Exclude the `"com.beust:jcommander"` dependency from all `"test"`-scoped dependencies.
 
 == Changelog
 
