@@ -111,7 +111,7 @@ class Test(implicit _project: Project) {
     scopeDeps = Map(
       "compile" -> Seq(
         "org.slf4j:slf4j-api:1.7.5",
-        Dependency("org.testng", "testng", "6.8", excludes = Seq("com.beust:jcommander)) //<1>
+        Dependency("org.testng", "testng", "6.8", excludes = Seq("com.beust:jcommander")) //<1>
       ),
       // Our test dependencies, which also contains the compile deps too
       "test" -> Seq(
