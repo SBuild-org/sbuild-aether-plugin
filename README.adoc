@@ -6,7 +6,7 @@ Tobias Roeser
 :toc-placement: preamble
 :toclevels: 1
 
-This SBuild plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
+This http://sbuild.org[SBuild] plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
 
 == Download
 
