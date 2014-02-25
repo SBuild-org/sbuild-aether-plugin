@@ -111,7 +111,7 @@ class Test(implicit _project: Project) {
     scopeDeps = Map(
       "compile" -> Seq(
         "org.slf4j:slf4j-api:1.7.5",
-        Dependency("org.testng", "testng", "6.8", excludes = Seq("com.beust:jcommander")) //<1>
+        ArtifactDependency("org.testng", "testng", "6.8", excludes = Seq("com.beust:jcommander")) //<1>
       ),
       // Our test dependencies, which also contains the compile deps too
       "test" -> Seq(
@@ -129,6 +129,30 @@ class Test(implicit _project: Project) {
 
 <1> Add the `"org.testng:testng:6.8"` dependency to the `"compile"` scope, but exclude `"com.beust:jcommander"` from the transitive dependendies.
 <2> Exclude the `"com.beust:jcommander"` dependency from all `"test"`-scoped dependencies.
+
+=== Disable Transitivity
+
+In the `Exclude` class, you can use the `*` wildcard for the groupId, artifactId or both.
+
+To disable all transitive dependencies of a paritcular dependency:
+
+[source,scala]
+----
+import org.sbuild.plugins.aether._
+Plugin[Aether]("aether") configure (
+  _.addDeps("compile")(ArtifactDependency("org.testng", "testng", "6.8", excludes = Seq("*:*")))
+)
+----
+
+To disable all transitive dependencies for all dependencies of the same scope:
+[source,scala]
+----
+import org.sbuild.plugins.aether._
+Plugin[Aether]("aether") configure (
+  _.addExcludes("compile")("*:*")
+)
+----
+
 
 == Changelog
 

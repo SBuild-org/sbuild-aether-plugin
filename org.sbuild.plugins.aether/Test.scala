@@ -1,7 +1,7 @@
 import de.tototec.sbuild._
 
 @version("0.7.1")
-@classpath("target/org.sbuild.plugins.aether-0.0.9100.jar")
+@classpath("target/org.sbuild.plugins.aether-0.1.0.jar")
 class Test(implicit _project: Project) {
 
   import org.sbuild.plugins.aether._
@@ -13,7 +13,9 @@ class Test(implicit _project: Project) {
     addDeps("cyclic-2")("compile", "cyclic-1").
     addDeps("testng")("org.testng:testng:6.8").
     addDeps("testng-without-jcommander")("org.testng:testng:6.8").
-    addExcludes("testng-without-jcommander")("com.beust:jcommander")
+    addExcludes("testng-without-jcommander")("com.beust:jcommander").
+    addDeps("non-transitive")("org.testng:testng:6.8").
+    addExcludes("non-transitive")("*:*")
   ).get
 
   def printFiles(ctx: TargetContext) {
@@ -39,6 +41,10 @@ class Test(implicit _project: Project) {
   Target("phony:test-resolve-testng-without-jcommander") dependsOn "aether:testng-without-jcommander" exec { ctx: TargetContext =>
     println("Deps: " + aether.scopeDeps)
     println("Excludes: " + aether.scopeExcludes)
+    printFiles(ctx)
+  }
+
+  Target("phony:test-resolve-non-transitive") dependsOn "aether:non-transitive" exec { ctx: TargetContext =>
     printFiles(ctx)
   }
 
