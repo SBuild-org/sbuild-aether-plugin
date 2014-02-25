@@ -5,12 +5,18 @@ import de.tototec.sbuild.ant.tasks._
 @version("0.7.1")
 @classpath(
   "mvn:org.apache.ant:ant:1.8.4",
-  "mvn:org.sbuild:org.sbuild.plugins.sbuildplugin:0.3.0"
+  "mvn:org.sbuild:org.sbuild.plugins.sbuildplugin:0.3.0",
+  "mvn:org.sbuild:org.sbuild.plugins.mavendeploy:0.1.0"
 )
 class SBuild(implicit _project: Project) {
 
   val namespace = "org.sbuild.plugins.aether"
-  val version = "0.0.9100"
+  val version = "0.1.0"
+  val url = "https://github.com/SBuild-org/sbuild-aether-plugin"
+
+  val jar = s"target/${namespace}-${version}.jar"
+  val sourcesJar = s"target/${namespace}-${version}-sources.jar"
+  val sourcesDir = "src/main/scala"
 
   val aetherVersion = "0.9.0.M4"
   val aetherConnectorVersion = "0.9.0.M2"
@@ -63,44 +69,36 @@ class SBuild(implicit _project: Project) {
     )
   }
 
-  val sbuildVersion = "0.7.0"
-  val scalaVersion = "2.10.3"
-  val jar = s"target/${namespace}-${version}.jar"
-  val sourcesZip = s"target/${namespace}-${version}-sources.jar"
-  val sources = "scan:src/main/scala"
-
-  Target("phony:all") dependsOn sourcesZip ~ jar
-
-  Target(sourcesZip) dependsOn sources ~ "LICENSE.txt" exec { ctx: TargetContext =>
+  Target(sourcesJar) dependsOn s"scan:${sourcesDir}" ~ "LICENSE.txt" exec { ctx: TargetContext =>
     AntZip(destFile = ctx.targetFile.get, fileSets = Seq(
-      AntFileSet(dir = Path("src/main/scala")),
+      AntFileSet(dir = Path(sourcesDir)),
       AntFileSet(file = Path("LICENSE.txt"))
     ))
   }
 
-  //  Target("phony:scaladoc").cacheable dependsOn scalaCompiler ~ compileCp ~ sources exec {
-  //    addons.scala.Scaladoc(
-  //      scaladocClasspath = scalaCompiler.files,
-  //      classpath = compileCp.files,
-  //      sources = sources.files,
-  //      destDir = Path("target/scaladoc"),
-  //      deprecation = true, unchecked = true, implicits = true,
-  //      docVersion = sbuildVersion,
-  //      docTitle = s"SBuild Experimental API Reference"
-  //    )
-  //  }
+  import org.sbuild.plugins.mavendeploy._
+  Plugin[MavenDeploy] configure { _.copy(
+    groupId = "org.sbuild",
+    artifactId = namespace,
+    version = version,
+    artifactName = Some("SBuild Aether Plugin"),
+    description = Some("An SBuild Plugin that provides a SchemeHandler based on Eclipse Aether (Maven) to transitively resolve dependencies from Maven repositories."),
+    repository = Repository.SonatypeOss,
+    scm = Option(Scm(url = url, connection = url)),
+    developers = Seq(Developer(id = "TobiasRoeser", name = "Tobias Roeser", email = "le.petit.fou@web.de")),
+    gpg = true,
+    licenses = Seq(License.Apache20),
+    url = Some(url),
+    files = Map(
+      "jar" -> s"target/${namespace}-${version}.jar",
+      "sources" -> sourcesJar,
+      "javadoc" -> "target/fake.jar"
+    )
+  )}
 
-  //  Target(jar) dependsOn "compile" ~ "LICENSE.txt" exec { ctx: TargetContext =>
-  //    AntJar(
-  //      destFile = ctx.targetFile.get,
-  //      baseDir = Path("target/classes"),
-  //      fileSet = AntFileSet(file = Path("LICENSE.txt")),
-  //      manifestEntries = Map(
-  //        "SBuild-ExportPackage" -> namespace,
-  //        "SBuild-Plugin" -> s"""${namespace}.Aether=${namespace}.AetherPlugin;version="${version}"""",
-  //        "SBuild-Classpath" -> aetherCp.map("raw:" + _).mkString(",")
-  //      )
-  //    )
-  //  }
+  Target("target/fake.jar") dependsOn "LICENSE.txt" exec { ctx: TargetContext =>
+    import de.tototec.sbuild.ant._
+    tasks.AntJar(destFile = ctx.targetFile.get, fileSet = AntFileSet(file = "LICENSE.txt".files.head))
+  }
 
 }

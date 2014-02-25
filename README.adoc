@@ -1,7 +1,7 @@
 = SBuild Aether Plugin
 Tobias Roeser
 :sbuildversion: 0.7.1
-:pluginversion: 0.0.9000
+:pluginversion: 0.1.0
 :toc:
 :toc-placement: preamble
 :toclevels: 1
@@ -17,8 +17,8 @@ The SBuild Aether Plugin can be downloaded from http://repo1.maven.org/maven2/or
 You need a recent version of SBuild.
 
 ----
-git clone https://github.com/SBuild-org/sbuild-aether.git
-cd sbuild-aether/org.sbuild.plugins.aether
+git clone https://github.com/SBuild-org/sbuild-aether-plugin.git
+cd sbuild-aether-plugin/org.sbuild.plugins.aether
 sbuild all
 ----
 
@@ -132,6 +132,6 @@ class Test(implicit _project: Project) {
 
 == Changelog
 
-=== SBuild Aether Plugi 0.1.0 - _not released yet_
+=== SBuild Aether Plugi 0.1.0 - 2014-02-25
 
 * Initial release.
