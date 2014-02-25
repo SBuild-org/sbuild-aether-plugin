@@ -33,14 +33,17 @@ You will find the built jar in the directory `org.sbuild.plugins.aether/target`.
 import de.tototec.sbuild._
 
 @version("{sbuildversion}")
-@classpath("mvn:org.sbuild:org.sbuild.plugins.aether:{pluginversion}") //<1>
+// Add the Aether Plugin to the project.
+@classpath("mvn:org.sbuild:org.sbuild.plugins.aether:{pluginversion}")
 class Test(implicit _project: Project) {
 
   import org.sbuild.plugins.aether._
 
-  Plugin[Aether]("aether") //<2>
+  // Enable the Aether Plugin by creating a `"aether"` named instance.
+  Plugin[Aether]("aether")
 
-  val dep = "aether:org.testng:testng:6.8" //<3>
+  // Use the scheme with the same name as the plugin instance.
+  val dep = "aether:org.testng:testng:6.8"
 
   Target("phony:test-resolve-simple") dependsOn dep exec {
     println("Files: " + dep.files.mkString("\n"))
@@ -48,9 +51,6 @@ class Test(implicit _project: Project) {
 }
 ----
 
-<1> Add the Aether Plugin to the project.
-<2> Enable the Aether Plugin by creating a `"aether"` named instance.
-<3> Use the scheme with the same name as the plugin instance.
 
 === Using the container equivalent of Maven
 
@@ -66,18 +66,15 @@ class Test(implicit _project: Project) {
   import org.sbuild.plugins.aether._
 
   // This enables and configures the Aether plugin
-  Plugin[Aether]("aether") configure (_.copy(
-    scopeDeps = Map(
+  Plugin[Aether]("aether") configure (
+    _.addDeps("compile")(
       // Our compile dependencies 
-      "compile" -> Seq(
-        "org.slf4j:slf4j-api:1.7.5",
-        "org.testng:testng:6.8"
-      ),
+      "org.slf4j:slf4j-api:1.7.5",
+      "org.testng:testng:6.8"
+    ).addDeps("test")(
       // Our test dependencies, which also contains the compile deps too
-      "test" -> Seq(
-        "compile",
-        "ch.qos.logback:logback-classic:1.0.11"
-      )
+      "compile",
+      "ch.qos.logback:logback-classic:1.0.11"
     )
   )
 
