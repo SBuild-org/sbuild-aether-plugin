@@ -4,7 +4,7 @@ Tobias Roeser
 :pluginversion: 0.1.0
 :toc:
 :toc-placement: preamble
-:toclevels: 1
+:toclevels: 2
 
 This http://sbuild.org[SBuild] plugin provides a SchemeHandler which is able to resolve dependencies via Eclipse Aether.
 
@@ -140,6 +140,18 @@ To disable all transitive dependencies for all dependencies of the same scope:
 import org.sbuild.plugins.aether._
 Plugin[Aether]("aether") configure (
   _.addExcludes("compile")("*:*")
+)
+----
+
+=== Adding a Remote Repository
+
+To use an additional repository (in this example `repo.spray.io`) use the `remoteRepo` settings.
+
+[source,scala]
+----
+import org.sbuild.plugins.aether._
+Plugin[Aether]("aether") configure (
+  _.copy(remoteRepos = Seq(Repository.Central, "spray::default::http://repo.spray.io"))
 )
 ----
 
