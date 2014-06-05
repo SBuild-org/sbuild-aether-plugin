@@ -11,7 +11,7 @@ import de.tototec.sbuild.ant.tasks._
 class SBuild(implicit _project: Project) {
 
   val namespace = "org.sbuild.plugins.aether"
-  val version = "0.1.0"
+  val version = "0.1.0.9000"
   val url = "https://github.com/SBuild-org/sbuild-aether-plugin"
 
   val jar = s"target/${namespace}-${version}.jar"
