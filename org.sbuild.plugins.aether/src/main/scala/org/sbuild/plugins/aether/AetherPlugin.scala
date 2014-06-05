@@ -18,5 +18,3 @@ class AetherPlugin(implicit project: Project) extends Plugin[Aether] {
       SchemeHandler(aether.schemeName, handler)
   }
 }
-
-//case class AetherDeps(deps: Seq[String], excludes: Seq[String])
