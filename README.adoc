@@ -31,13 +31,14 @@ All configuration classes are located in the `org.sbuild.plugins.aether` package
 :Aether_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Aether.scala
 :Repository_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Repository.scala
 :Dependency_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Dependency.scala
+:Exclude_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Exclude.scala
 
 The main configuration class is link:{Aether_scala}[`Aether`].
 
 include::{Aether_scala}[]
 
 For repository configurations, the link:{Repository_scala}[Repository] class is used.
-For advanced dependency configuration, see the link:{Dependency_scala}[Dependency] class.
+For advanced dependency configuration, see the link:{Dependency_scala}[Dependency] and link:{Eclude_scala}[Exclude] classes.
 
 == Examples
 
