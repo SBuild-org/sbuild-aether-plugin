@@ -24,6 +24,21 @@ sbuild all
 
 You will find the built jar in the directory `org.sbuild.plugins.aether/target`.
 
+== Configuration
+
+All configuration classes are located in the `org.sbuild.plugins.aether` package.
+
+:Aether_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Aether.scala
+:Repository_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Repository.scala
+:Dependency_scala: org.sbuild.plugins.aether/src/main/scala/org/sbuild/plugins/aether/Dependency.scala
+
+The main configuration class is link:{Aether_scala}[`Aether.scala`].
+
+include::{Aether_scala}[]
+
+For repository configurations, the {Repository_scala} class is used.
+For advanced dependency configuration, see the {Dependency_scala} class.
+
 == Examples
 
 === Minimal example, using Aether to transitively resolve a dependency
