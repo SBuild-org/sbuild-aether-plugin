@@ -62,6 +62,7 @@ class AetherSchemeHandler(
       println("About to resolve the following requested dependencies: " + requestedDeps.mkString(", "))
 
       val files = worker.resolve(requestedDeps)
+      targetContext.targetLastModified = 1
       files.foreach { f => targetContext.attachFile(f) }
 
       //    println("Resolved files: " + files)
